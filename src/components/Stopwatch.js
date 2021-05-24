@@ -20,9 +20,14 @@ class Stopwatch extends Component{
     }
 
     componentDidMount = () => {
-        const reading = JSON.parse(localStorage.getItem(LOCAL_STORAGE_STOPWATCH))
-        if (reading) {
-            this.setState({readings : reading})
+        try{
+            const reading = JSON.parse(localStorage.getItem(LOCAL_STORAGE_STOPWATCH))
+            if (reading) {
+                this.setState({readings : reading})
+            }
+        }
+        catch{
+            return
         }
     }
 
@@ -56,36 +61,43 @@ class Stopwatch extends Component{
 
     saveHandler = () => {
         if (this.state.startTime > 0){ 
-                if (this.state.readings.first === null){
-                    this.setState({
-                        readings:{
-                            first : ("0"+Math.floor(this.state.startTime/60)).slice(-2)+'m '+("0"+this.state.startTime%60).slice(-2)+'s'
-                        }
-                    })
-                }else if( this.state.readings.second === null){
-                    this.setState({
-                        readings:{
-                            second : this.state.readings.first,
-                            first : ("0"+Math.floor(this.state.startTime/60)).slice(-2)+'m '+("0"+this.state.startTime%60).slice(-2)+'s'
-                        }
-                    })
-                }else if(this.state.readings.third === null){
-                    this.setState({
-                        readings:{
-                            third : this.state.readings.second,
-                            second : this.state.readings.first,
-                            first : ("0"+Math.floor(this.state.startTime/60)).slice(-2)+'m '+("0"+this.state.startTime%60).slice(-2)+'s'
-                        }
-                    })
-                }else{
-                    this.setState({
-                        readings:{
-                            third : this.state.readings.second,
-                            second : this.state.readings.first,
-                            first : ("0"+Math.floor(this.state.startTime/60)).slice(-2)+'m '+("0"+this.state.startTime%60).slice(-2)+'s'
-                        }
-                    })
-                }
+            if (this.state.readings.first === null){
+                this.setState({
+                    readings:{ ...this.state.readings,
+                        first : ("0"+Math.floor(this.state.startTime/60)).slice(-2)+'m '+("0"+this.state.startTime%60).slice(-2)+'s'
+                    }
+                })
+            }else if( this.state.readings.second === null){
+                this.setState({
+                    readings:{ ...this.state.readings,
+                        second : this.state.readings.first,
+                        first : ("0"+Math.floor(this.state.startTime/60)).slice(-2)+'m '+("0"+this.state.startTime%60).slice(-2)+'s'
+                    }
+                })
+            }else if(this.state.readings.third === null){
+                this.setState({
+                    readings:{ ...this.state.readings,
+                        third : this.state.readings.second,
+                        second : this.state.readings.first,
+                        first : ("0"+Math.floor(this.state.startTime/60)).slice(-2)+'m '+("0"+this.state.startTime%60).slice(-2)+'s'
+                    }
+                })
+            }else{
+                this.setState({
+                    readings:{ ...this.state.readings,
+                        third : this.state.readings.second,
+                        second : this.state.readings.first,
+                        first : ("0"+Math.floor(this.state.startTime/60)).slice(-2)+'m '+("0"+this.state.startTime%60).slice(-2)+'s'
+                    }
+                })
+            }
+        }else{
+            alert("Please run the stopwatch to save readings")
+        }
+    }
+
+    componentDidUpdate(){
+        if (this.state.readings){
             localStorage.setItem(LOCAL_STORAGE_STOPWATCH, JSON.stringify(this.state.readings))
         }
     }
@@ -96,7 +108,7 @@ class Stopwatch extends Component{
                 <h1>STOPWATCH</h1>
                 <h2>{("0"+Math.floor(this.state.startTime/60)).slice(-2)}m {("0"+this.state.startTime%60).slice(-2)}s</h2>
                 <button onClick={this.startHandler}>{this.state.runningStatus ? 'Pause' : 'Start'}</button>
-                {this.state.runningStatus && (<button onClick={this.stopHandler}>Stop</button>)}
+                {(!this.state.runningStatus && this.state.startTime>0) && (<button onClick={this.stopHandler}>Stop</button>)}
                 <button onClick={this.saveHandler}>Save Reading</button>
                 <Lastreading readings={this.state.readings}/>
             </div>
